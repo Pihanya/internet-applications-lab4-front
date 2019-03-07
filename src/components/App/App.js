@@ -16,7 +16,8 @@ class App extends Component {
         super(props);
 
         this.state = {
-            r: 1
+            r: 1,
+            token: undefined
         };
 
         this.onLogin = this.onLogin.bind(this);
@@ -35,9 +36,12 @@ class App extends Component {
                 <Header/>
 
                 <Content
-                    onLogin={this.onLogin}
                     authService={this.authService}
                     pointsService={this.pointsService}
+
+                    getToken={() => this.state.token}
+
+                    onLogin={this.onLogin}
                 />
 
                 <Footer/>

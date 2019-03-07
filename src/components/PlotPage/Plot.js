@@ -40,7 +40,6 @@ class Plot extends Component {
             let coordX = 130 * verdict.x / r + 150;
             let coordY = 150 - 130 * verdict.y / r;
 
-            console.log("Mapping coords: { X: " + verdict.x + "=>" + coordX + ", Y: " + verdict.y + "=>" + coordY + " }");
             Plot.drawPoint(this.canvas, coordX, coordY, verdict.verdict)
         });
     }
@@ -48,7 +47,6 @@ class Plot extends Component {
     onCanvasClick(event) {
         let r = this.props.r;
 
-        // TODO: Implement
         let rect = this.canvas.getBoundingClientRect();
 
         let left = rect.left;
@@ -56,13 +54,11 @@ class Plot extends Component {
 
         let x = event.clientX - left;
         let y = event.clientY - top;
-        console.log("Canvas click: {X: " + x + " Y: " + y + "}");
 
         let xValue = r * (x - 150) / 130;
         let yValue = r * (150 - y) / 130;
-        console.log("Canvas click: {R: " + r + " X: " + xValue + " Y: " + yValue + "}");
 
-        this.props.onPlotClicked(xValue, yValue, r);
+        this.props.addPoint(xValue, yValue, r);
 
         Plot.drawPoint(this.canvas, x, y, true);
     }
@@ -85,7 +81,7 @@ class Plot extends Component {
         // Sector
         context.beginPath();
         context.moveTo(150, 150);
-        context.arc(150, 150, 130, Math.PI/2, Math.PI, false);
+        context.arc(150, 150, 130, Math.PI / 2, Math.PI, false);
         context.closePath();
         context.strokeStyle = "blue";
         context.fillStyle = "blue";
@@ -159,7 +155,6 @@ class Plot extends Component {
     static drawPoint(canvas, x, y, isArea) {
         let context = canvas.getContext("2d");
 
-        console.log("Drawing point " + x + " " + y);
         context.beginPath();
         context.rect(x - 2, y - 2, 4, 4);
         context.closePath();

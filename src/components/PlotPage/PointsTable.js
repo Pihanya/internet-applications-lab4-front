@@ -26,8 +26,20 @@ class PointsTable extends Component {
             }
         );
 
+        let verdicts = this.props.getVerdicts().map(verdict => {
+            console.log(verdict);
+            return {
+                'x': verdict.x.toPrecision(2),
+                'y': verdict.y.toPrecision(2),
+                'r': verdict.r.toPrecision(2),
+                'verdict': (verdict.verdict ? "Yes" : "No")
+            }
+        });
+
         return (
-            <DataTable value={this.props.getVerdicts()}>
+            <DataTable
+                value={verdicts}
+            >
                 {dynamicColumns}
             </DataTable>
         );

@@ -8,28 +8,31 @@ import Plot from "./Plot";
 
 import "./css/PlotPage.css";
 import "primeflex/primeflex.css"
-
-import PointsService from '../../service/PointsService'
+import {Messages} from "primereact/messages";
 
 export class PlotPage extends Component {
     constructor(props) {
         super(props);
+
+        console.log("Token in PlotPage: " + this.props.getToken());
+        if (this.props.getToken() === undefined) {
+            this.props.history.push("/");
+        }
+
         this.state = {
             xInputValue: 0,
-            yInputValue: null,
+            yInputValue: 0,
             rInputValue: 1,
 
             verdicts: [
-                {x: 0.5, y: 0.5, r: 1, verdict: true},
-                {x: -0.5, y: -1, r: 2, verdict: false}
+                // {x: 0.5, y: 0.5, r: 1, verdict: true},
+                // {x: -0.5, y: -1, r: 2, verdict: false}
             ]
         };
 
-        this.pointsService = new PointsService();
-
         this.getVerdicts = this.getVerdicts.bind(this);
-        this.onPlotClicked = this.onPlotClicked.bind(this);
-        this.updateYTextValue = this.updateYTextValue.bind(this);
+        this.addPoint = this.addPoint.bind(this);
+        this.onSubmitPointButtonClicked = this.onSubmitPointButtonClicked.bind(this);
         this.clearVerdicts = this.clearVerdicts.bind(this);
         this.getToken = this.getToken.bind(this);
     }
@@ -38,15 +41,13 @@ export class PlotPage extends Component {
         return (
             <div className="plot-root">
                 <div className="p-grid">
-                    {/*<div className="table-row plot-root">*/}
-                    <div className="p-col table-container">
-                        {/*<div className="column table-column">*/}
+                    <div className="p-col-12 p-md-6 p-lg-3 table-container">
                         <PointsTable
                             getVerdicts={this.getVerdicts}
                         />
                     </div>
 
-                    <div className="p-col form-container">
+                    <div className="p-col-12 p-md-6 p-lg-3 form-container">
                         <div className="data-box">
                             <div className="data-header">
                                 Значение X [-3; 5]
@@ -69,13 +70,9 @@ export class PlotPage extends Component {
                             </div>
 
                             <div className="data-input">
-                                <span className="p-float-label">
-                                    <InputText keyfilter="num" id="in" value={this.state.yInputValue}
-                                        // onChange={(e) => this.setState({y: e.target.value})}
-                                               onChange={(e) => this.updateYTextValue(e.value)}
-                                    />
-                                    <label htmlFor="in">Y</label>
-                                </span>
+                                <InputText keyfilter="num"
+                                           onChange={(e) => this.setState({yInputValue: e.target.value})}
+                                />
                             </div>
                         </div>
 
@@ -94,59 +91,77 @@ export class PlotPage extends Component {
                             </div>
                         </div>
 
-                        <Button label="Очистить все точки" onClick={this.clearVerdicts}/>
-                        <Button label="Добавить"/>
+                        <div className="p-grid buttons-panel">
+                            <Button className="p-col" label="Вернуться назад"
+                                    onClick={() => this.props.history.push('/')}/>
+                            <Button className="p-col" label="Очистить все точки" onClick={this.clearVerdicts}/>
+                            <Button className="p-col" label="Добавить" onClick={this.onSubmitPointButtonClicked}/>
+                        </div>
                     </div>
 
-                    <div className="p-col plot-container">
+                    <div className="p-col-12 p-md-6 p-lg-3 plot-container">
                         {/*<div className="column plot-column">*/}
-                        <text>Приложение определяет, входят ли указанные пользователем точки в заданную область.</text>
+                        Приложение определяет, входят ли указанные пользователем точки в заданную область.
 
                         <Plot
                             getVerdicts={this.getVerdicts}
 
-                            onPlotClicked={this.onPlotClicked}
+                            addPoint={this.addPoint}
 
                             r={this.state.rInputValue}
                         />
                     </div>
                 </div>
+
+                <Messages ref={(el) => this.messages = el}/>
             </div>
         );
     }
 
-    getToken() {
-        this.props.getToken();
-    }
+    getToken = this.props.getToken;
 
-    clearVerdicts() {
-        this.setState({verdicts: []})
-    }
+    clearVerdicts = () => {
+        // this.props.pointsService.clearVerdicts(this.getToken());
+        this.setState({verdicts: []});
+    };
 
-    getVerdicts() {
+    getVerdicts = () => {
+        // this.props.pointsService.getVerdicts(this.getToken());
         return this.state.verdicts;
-    }
+    };
 
-    onPlotClicked(x, y, r) {
+    addPoint(x, y, r) {
+        console.log(this.getToken());
         console.log("Plot clicked " + x + " " + y + " " + r);
+
+        // TODO: Add validation
+        // let verdict = this.props.pointsService.getVerdict(this.getToken(), x, y, r).verdict;
 
         let verdictsArray = this.state.verdicts;
         verdictsArray.push({x: x, y: y, r: r, verdict: Math.random() > 0.5});
+        // verdictsArray.push({x: x, y: y, r: r, verdict: verdict});
 
         this.setState({verdicts: verdictsArray});
     }
 
-    // Y length validation
-    updateYTextValue(value) {
-        if (value < 0 && value.toString().length > 6) {
-            return;
-        }
+    onSubmitPointButtonClicked() {
+        let inputX = this.state.xInputValue;
+        let inputY = parseFloat(this.state.yInputValue);
+        let inputR = this.state.rInputValue;
 
-        if (value >= 0 && value.toString().length > 5) {
-            return;
+        if (inputX === undefined ||
+            inputY === undefined ||
+            inputR === undefined) {
+            this.messages.show({severity: 'error', summary: 'Some of values are undefined'});
+        } else if (inputY < -3 || inputY > 3) {
+            this.messages.show({severity: 'error', summary: 'Y should be in the interval [-3; 3]'});
+        } else {
+            this.addPoint(inputX, inputY, inputR);
+            this.messages.show({
+                severity: 'success',
+                summary: 'X: ' + inputX + " Y: " + inputY + " R: " + inputR + " were successfully added"
+            });
         }
-
-        this.setState({y: value})
     }
 }
 

@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import {InputText} from 'primereact/inputtext';
 import {Password} from 'primereact/password';
 import {Button} from 'primereact/button';
+import {Messages} from 'primereact/messages';
 
 import "./Landing.css"
 
@@ -10,16 +11,12 @@ class Landing extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: "Misha",
-            password: "Gostev",
             timestamp: new Date().toLocaleTimeString(),
-            token: undefined,
 
             dateUpdaterIntervalId: undefined
         };
 
         this.handleLoginButtonClick = this.handleLoginButtonClick.bind(this);
-        this.fetchToken = this.fetchToken.bind(this);
     }
 
     componentDidMount() {
@@ -61,28 +58,32 @@ class Landing extends Component {
                             <Button label="Login" onClick={this.handleLoginButtonClick}/>
                         </div>
                     </div>
+
+                    <Messages ref={(el) => this.messages = el}/>
                 </div>
             </div>
         )
     }
 
     handleLoginButtonClick() {
-        // this.fetchToken();
-        // if (this.state.token === undefined) {
-        //     return; // TODO: Could not login
-        // } else {
-        //     if (this.state.dateUpdaterIntervalId !== undefined) {
-        //         clearInterval(this.state.dateUpdaterIntervalId)
-        //     }
-        //
-        //     this.props.history.push("/plot");
-        // }
+        let token = this.props.authService.authorize(this.state.username, this.state.password);
+        if (token === undefined) {
+            this.messages.show(
+                {
+                    severity: 'error',
+                    summary: 'Authorization fail!',
+                    detail: 'Could not authorize with given creditials'
+                }
+            );
+        } else {
+            this.props.onLogin(token);
 
-        this.props.history.push("/plot");
-    }
+            if (this.state.dateUpdaterIntervalId !== undefined) {
+                clearInterval(this.state.dateUpdaterIntervalId)
+            }
 
-    fetchToken() {
-
+            this.props.history.push("/plot");
+        }
     }
 }
 
