@@ -5,14 +5,6 @@ import {Column} from 'primereact/column';
 import './css/PointsTable.css'
 
 class PointsTable extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-    componentDidMount() {
-        // this.pointsRepository.getCarsSmall().then(data => this.setState({cars: data}));
-    }
-
     render() {
         let cols = [
             {field: 'x', header: 'X'},
@@ -37,9 +29,7 @@ class PointsTable extends Component {
         });
 
         return (
-            <DataTable
-                value={verdicts}
-            >
+            <DataTable value={verdicts}>
                 {dynamicColumns}
             </DataTable>
         );

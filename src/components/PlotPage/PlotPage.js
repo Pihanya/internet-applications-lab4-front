@@ -121,13 +121,13 @@ export class PlotPage extends Component {
     getToken = this.props.getToken;
 
     clearVerdicts = () => {
-        // this.props.pointsService.clearVerdicts(this.getToken());
-        this.setState({verdicts: []});
+        this.props.pointsService.clearVerdicts(this.getToken());
+        // this.setState({verdicts: []});
     };
 
     getVerdicts = () => {
-        // this.props.pointsService.getVerdicts(this.getToken());
-        return this.state.verdicts;
+        this.props.pointsService.getVerdicts(this.getToken());
+        // return this.state.verdicts;
     };
 
     addPoint(x, y, r) {
@@ -135,11 +135,11 @@ export class PlotPage extends Component {
         console.log("Plot clicked " + x + " " + y + " " + r);
 
         // TODO: Add validation
-        // let verdict = this.props.pointsService.getVerdict(this.getToken(), x, y, r).verdict;
+        let verdict = this.props.pointsService.getVerdict(this.getToken(), x, y, r).verdict;
 
         let verdictsArray = this.state.verdicts;
-        verdictsArray.push({x: x, y: y, r: r, verdict: Math.random() > 0.5});
-        // verdictsArray.push({x: x, y: y, r: r, verdict: verdict});
+        // verdictsArray.push({x: x, y: y, r: r, verdict: Math.random() > 0.5});
+        verdictsArray.push({x: x, y: y, r: r, verdict: verdict});
 
         this.setState({verdicts: verdictsArray});
     }
