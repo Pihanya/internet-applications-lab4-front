@@ -1,0 +1,55 @@
+.table-container {
+    padding: 20px 15px !important;
+
+}
+
+.form-container div:first-child {
+    margin-top: 10px;
+    /*background-color: green;*/
+}
+
+.plot-container {
+    padding-top: 10px !important;
+}
+
+.plot-container {
+    padding-top: 10px !important;
+}
+
+.form-container {
+    padding: 10px 10px 10px 10px;
+}
+
+.data-box {
+    text-align: left;
+    border: 3px solid #4d7198;
+    margin-bottom: 7px;
+}
+
+.data-header {
+    border-bottom-style: solid;
+    padding: 5px 5px 5px 5px;
+    border-color: white;
+    border-bottom-width: 1px;
+}
+
+.data-input .slider {
+    padding-left: 15px;
+}
+
+.data-input {
+    padding: 20px 20px 10px 10px;
+}
+
+.data-input-text {
+    margin-bottom: 10px;
+}
+
+#login_button {
+    height: 100px;
+    width: 50px;
+}
+
+@media screen and (max-width: 600px) {
+
+}

@@ -1,0 +1,21 @@
+.landing-root {
+    position: relative;
+    text-align: center;
+    width: 100%;
+}
+
+.authorization-form {
+
+}
+
+.input-box {
+    padding: 5px;
+}
+
+.input-box label {
+    margin-right: 4px;
+}
+
+.submit-form-button {
+    margin-top: 5px;
+}
