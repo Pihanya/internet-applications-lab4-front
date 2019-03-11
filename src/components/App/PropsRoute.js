@@ -8,7 +8,7 @@ const renderMergedProps = (component, ...rest) => {
     );
 };
 
-export const PropsRoute = ({ component, ...rest }) => {
+export const PropsRoute = ({component, ...rest}) => {
     return (
         <Route {...rest} render={routeProps => {
             return renderMergedProps(component, routeProps, rest);

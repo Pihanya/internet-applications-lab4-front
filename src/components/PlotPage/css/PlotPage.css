@@ -1,6 +1,5 @@
 .table-container {
     padding: 20px 15px !important;
-
 }
 
 .form-container div:first-child {
@@ -8,16 +7,13 @@
     /*background-color: green;*/
 }
 
-.plot-container {
-    padding-top: 10px !important;
-}
-
-.plot-container {
-    padding-top: 10px !important;
-}
-
 .form-container {
     padding: 10px 10px 10px 10px;
+}
+
+.plot-container {
+    padding-top: 10px !important;
+    padding-left: 25px !important;
 }
 
 .data-box {
@@ -43,6 +39,14 @@
 
 .data-input-text {
     margin-bottom: 10px;
+}
+
+.buttons-panel {
+    padding-top: 10px;
+}
+
+.buttons-panel * {
+    margin: 5px !important;
 }
 
 #login_button {

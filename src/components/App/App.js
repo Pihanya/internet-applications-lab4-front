@@ -20,13 +20,13 @@ class App extends Component {
             token: undefined
         };
 
-        this.onLogin = this.onLogin.bind(this);
+        this.setToken = this.setToken.bind(this);
 
         this.authService = new AuthService();
         this.pointsService = new PointsService();
     }
 
-    onLogin(token) {
+    setToken(token) {
         this.setState({token: token})
     }
 
@@ -39,9 +39,8 @@ class App extends Component {
                     authService={this.authService}
                     pointsService={this.pointsService}
 
-                    getToken={() => this.state.token}
-
-                    onLogin={this.onLogin}
+                    token={this.state.token}
+                    setToken={this.setToken}
                 />
 
                 <Footer/>

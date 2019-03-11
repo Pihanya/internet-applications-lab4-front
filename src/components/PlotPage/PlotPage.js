@@ -14,8 +14,7 @@ export class PlotPage extends Component {
     constructor(props) {
         super(props);
 
-        console.log("Token in PlotPage: " + this.props.getToken());
-        if (this.props.getToken() === undefined) {
+        if (!this.props.isTokenized()) {
             this.props.history.push("/");
         }
 
@@ -24,30 +23,58 @@ export class PlotPage extends Component {
             yInputValue: 0,
             rInputValue: 1,
 
-            verdicts: [
-                // {x: 0.5, y: 0.5, r: 1, verdict: true},
-                // {x: -0.5, y: -1, r: 2, verdict: false}
-            ]
+            verdicts: []
         };
 
-        this.getVerdicts = this.getVerdicts.bind(this);
         this.addPoint = this.addPoint.bind(this);
-        this.onSubmitPointButtonClicked = this.onSubmitPointButtonClicked.bind(this);
-        this.clearVerdicts = this.clearVerdicts.bind(this);
-        this.getToken = this.getToken.bind(this);
+
+        this.onSubmitButtonClicked = this.onSubmitButtonClicked.bind(this);
+        this.onClearButtonClicked = this.onClearButtonClicked.bind(this);
+        this.onBackButtonClicked = this.onBackButtonClicked.bind(this);
+    }
+
+    componentDidMount() {
+        this.props.getVerdicts().then(verdictsArray => {
+            if (verdictsArray !== undefined) {
+                this.setState({verdicts: verdictsArray})
+            } else {
+                console.error("Error! Could not preload verdicts: verdictsArray is undefined");
+                this.setState({verdicts: []})
+            }
+        });
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.props.getVerdicts().then(verdictsArray => {
+            if (verdictsArray !== undefined) {
+                let verdicts = verdictsArray.map(verdict => {
+                        return {
+                            x: verdict.x,
+                            y: verdict.y,
+                            r: verdict.r,
+                            verdict: verdict.verdict
+                        };
+                    }
+                );
+
+                this.setState({verdicts: verdicts});
+            } else {
+                console.error("Error! Could update verdicts: verdictsArray is undefined");
+            }
+        });
     }
 
     render() {
         return (
             <div className="plot-root">
                 <div className="p-grid">
-                    <div className="p-col-12 p-md-6 p-lg-3 table-container">
+                    <div className="p-col-12 p-md-6 p-lg-4 table-container">
                         <PointsTable
-                            getVerdicts={this.getVerdicts}
+                            getVerdicts={() => this.state.verdicts}
                         />
                     </div>
 
-                    <div className="p-col-12 p-md-6 p-lg-3 form-container">
+                    <div className="p-col-12 p-md-6 p-lg-4 form-container">
                         <div className="data-box">
                             <div className="data-header">
                                 Значение X [-3; 5]
@@ -71,6 +98,7 @@ export class PlotPage extends Component {
 
                             <div className="data-input">
                                 <InputText keyfilter="num"
+                                           value={this.state.yInputValue}
                                            onChange={(e) => this.setState({yInputValue: e.target.value})}
                                 />
                             </div>
@@ -92,19 +120,17 @@ export class PlotPage extends Component {
                         </div>
 
                         <div className="p-grid buttons-panel">
-                            <Button className="p-col" label="Вернуться назад"
-                                    onClick={() => this.props.history.push('/')}/>
-                            <Button className="p-col" label="Очистить все точки" onClick={this.clearVerdicts}/>
-                            <Button className="p-col" label="Добавить" onClick={this.onSubmitPointButtonClicked}/>
+                            <Button className="p-col" label="Вернуться назад" onClick={this.onBackButtonClicked}/>
+                            <Button className="p-col" label="Очистить все точки" onClick={this.onClearButtonClicked}/>
+                            <Button className="p-col" label="Добавить" onClick={this.onSubmitButtonClicked}/>
                         </div>
                     </div>
 
-                    <div className="p-col-12 p-md-6 p-lg-3 plot-container">
-                        {/*<div className="column plot-column">*/}
+                    <div className="p-col-12 p-md-6 p-lg-4 plot-container">
                         Приложение определяет, входят ли указанные пользователем точки в заданную область.
 
                         <Plot
-                            getVerdicts={this.getVerdicts}
+                            getVerdicts={() => this.state.verdicts}
 
                             addPoint={this.addPoint}
 
@@ -118,33 +144,20 @@ export class PlotPage extends Component {
         );
     }
 
-    getToken = this.props.getToken;
-
-    clearVerdicts = () => {
-        this.props.pointsService.clearVerdicts(this.getToken());
-        // this.setState({verdicts: []});
-    };
-
-    getVerdicts = () => {
-        this.props.pointsService.getVerdicts(this.getToken());
-        // return this.state.verdicts;
-    };
-
     addPoint(x, y, r) {
-        console.log(this.getToken());
-        console.log("Plot clicked " + x + " " + y + " " + r);
+        console.log('Adding point: ' + x + ',' + y + ' ' + r);
 
-        // TODO: Add validation
-        let verdict = this.props.pointsService.getVerdict(this.getToken(), x, y, r).verdict;
+        return this.props.getVerdict(x, y, r).then(verdict => {
+                let verdictsArray = this.state.verdicts;
+                verdictsArray.push({x: x, y: y, r: r, verdict: verdict});
 
-        let verdictsArray = this.state.verdicts;
-        // verdictsArray.push({x: x, y: y, r: r, verdict: Math.random() > 0.5});
-        verdictsArray.push({x: x, y: y, r: r, verdict: verdict});
-
-        this.setState({verdicts: verdictsArray});
+                this.setState({verdicts: verdictsArray});
+                return verdict;
+            }
+        )
     }
 
-    onSubmitPointButtonClicked() {
+    onSubmitButtonClicked() {
         let inputX = this.state.xInputValue;
         let inputY = parseFloat(this.state.yInputValue);
         let inputR = this.state.rInputValue;
@@ -159,9 +172,28 @@ export class PlotPage extends Component {
             this.addPoint(inputX, inputY, inputR);
             this.messages.show({
                 severity: 'success',
-                summary: 'X: ' + inputX + " Y: " + inputY + " R: " + inputR + " were successfully added"
+                summary: 'Point {' + inputX + ", " + inputY + "} inside radius " + inputR + ' was successfully added'
             });
         }
+    }
+
+    onClearButtonClicked() {
+        this.props.clearVerdicts().then(clearResult => {
+                if (clearResult) {
+                    this.messages.show({
+                        severity: 'success',
+                        summary: 'Points were successfully cleared!'
+                    });
+                } else {
+                    this.messages.show({severity: 'error', summary: 'Failed to clear points'});
+                }
+            }
+        )
+    }
+
+    onBackButtonClicked() {
+        this.props.setToken(undefined);
+        this.props.history.push('/');
     }
 }
 

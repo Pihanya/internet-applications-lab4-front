@@ -1,6 +1,23 @@
 import React, {Component} from "react"
 
 class Plot extends Component {
+    static drawPoint(canvas, x, y, isArea) {
+        let context = canvas.getContext("2d");
+
+        context.beginPath();
+        context.rect(x - 2, y - 2, 4, 4);
+        context.closePath();
+        if (isArea) {
+            context.strokeStyle = "green";
+            context.fillStyle = "green";
+        } else {
+            context.strokeStyle = "maroon";
+            context.fillStyle = "maroon";
+        }
+        context.fill();
+        context.stroke();
+    }
+
     constructor(props) {
         super(props);
 
@@ -35,13 +52,15 @@ class Plot extends Component {
     updateCanvas() {
         Plot.drawCanvas(this.canvas, this.props.r);
 
-        let r = this.props.r === 0 ? Infinity : this.props.r;
-        this.props.getVerdicts().forEach(verdict => {
-            let coordX = 130 * verdict.x / r + 150;
-            let coordY = 150 - 130 * verdict.y / r;
+        if (this.props.r !== 0) {
+            let r = this.props.r;
+            this.props.getVerdicts().forEach(verdict => {
+                let coordX = 130 * verdict.x / r + 150;
+                let coordY = 150 - 130 * verdict.y / r;
 
-            Plot.drawPoint(this.canvas, coordX, coordY, verdict.verdict)
-        });
+                Plot.drawPoint(this.canvas, coordX, coordY, verdict.verdict)
+            });
+        }
     }
 
     onCanvasClick(event) {
@@ -58,9 +77,13 @@ class Plot extends Component {
         let xValue = r * (x - 150) / 130;
         let yValue = r * (150 - y) / 130;
 
-        this.props.addPoint(xValue, yValue, r);
-
-        Plot.drawPoint(this.canvas, x, y, true);
+        this.props.addPoint(xValue, yValue, r).then(verdict => {
+            if (verdict !== undefined) {
+                Plot.drawPoint(this.canvas, x, y, verdict);
+            } else {
+                // TODO: Add behaviour
+            }
+        });
     }
 
     static drawCanvas(canvas, r) {
@@ -149,23 +172,6 @@ class Plot extends Component {
         context.closePath();
         context.strokeStyle = "black";
         context.fillStyle = "black";
-        context.stroke();
-    }
-
-    static drawPoint(canvas, x, y, isArea) {
-        let context = canvas.getContext("2d");
-
-        context.beginPath();
-        context.rect(x - 2, y - 2, 4, 4);
-        context.closePath();
-        if (isArea) {
-            context.strokeStyle = "green";
-            context.fillStyle = "green";
-        } else {
-            context.strokeStyle = "maroon";
-            context.fillStyle = "maroon";
-        }
-        context.fill();
         context.stroke();
     }
 }

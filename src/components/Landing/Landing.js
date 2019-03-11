@@ -11,6 +11,9 @@ class Landing extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            username: "",
+            password: "",
+
             timestamp: new Date().toLocaleTimeString(),
 
             dateUpdaterIntervalId: undefined
@@ -20,9 +23,8 @@ class Landing extends Component {
     }
 
     componentDidMount() {
-        let self = this;
         let intervalId = setInterval(
-            () => self.setState({timestamp: new Date().toLocaleTimeString()}),
+            () => this.setState({timestamp: new Date().toLocaleTimeString()}),
             3000
         );
 
@@ -66,24 +68,26 @@ class Landing extends Component {
     }
 
     handleLoginButtonClick() {
-        let token = this.props.authService.authorize(this.state.username, this.state.password);
-        if (token === undefined) {
-            this.messages.show(
-                {
-                    severity: 'error',
-                    summary: 'Authorization fail!',
-                    detail: 'Could not authorize with given creditials'
+        this.props.authorize(this.state.username, this.state.password)
+            .then(token => {
+                if (token === undefined) {
+                    this.messages.show(
+                        {
+                            severity: 'error',
+                            summary: 'Authorization fail!',
+                            detail: 'Could not authorize with given credentials'
+                        }
+                    );
+                } else {
+                    this.props.setToken(token);
+
+                    if (this.state.dateUpdaterIntervalId !== undefined) {
+                        clearInterval(this.state.dateUpdaterIntervalId)
+                    }
+
+                    this.props.history.push("/plot");
                 }
-            );
-        } else {
-            this.props.onLogin(token);
-
-            if (this.state.dateUpdaterIntervalId !== undefined) {
-                clearInterval(this.state.dateUpdaterIntervalId)
-            }
-
-            this.props.history.push("/plot");
-        }
+            });
     }
 }
 

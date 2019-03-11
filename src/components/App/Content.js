@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router, Route} from "react-router-dom";
+import {BrowserRouter as Router} from "react-router-dom";
 
 import {PropsRoute} from './PropsRoute'
 
@@ -14,13 +14,18 @@ class Content extends Component {
             <Router>
                 <div className="content-root">
                     <PropsRoute path="/" exact component={Landing}
-                                authService={this.props.authService}
-                                onLogin={this.props.onLogin}
+                                authorize={(user, password) => this.props.authService.authorize(user, password)}
+
+                                setToken={this.props.setToken}
                     />
 
                     <PropsRoute path="/plot" exact component={PlotPage}
-                                pointsService={this.props.pointsService}
-                                getToken={this.props.getToken}
+                                isTokenized={() => this.props.token !== undefined}
+                                setToken={this.props.setToken}
+
+                                getVerdict={(x, y, r) => this.props.pointsService.getVerdict(this.props.token, x, y, r)}
+                                getVerdicts={() => this.props.pointsService.getVerdicts(this.props.token)}
+                                clearVerdicts={() => this.props.pointsService.clearVerdicts(this.props.token)}
                     />
                 </div>
             </Router>

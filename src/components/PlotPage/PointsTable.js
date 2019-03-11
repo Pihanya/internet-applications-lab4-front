@@ -18,8 +18,12 @@ class PointsTable extends Component {
             }
         );
 
-        let verdicts = this.props.getVerdicts().map(verdict => {
-            console.log(verdict);
+        let verdictsArray = this.props.getVerdicts();
+        if (verdictsArray === undefined) {
+            verdictsArray = [];
+        }
+
+        let verdicts = verdictsArray.map(verdict => {
             return {
                 'x': verdict.x.toPrecision(2),
                 'y': verdict.y.toPrecision(2),
